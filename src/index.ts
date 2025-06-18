@@ -1,9 +1,32 @@
-#!/usr/bin/env node
+import { addonBuilder, serveHTTP } from 'stremio-addon-sdk';
+import { extractStream } from './extractor';
+import { AddonManifest } from './types';
 
-import { serveHTTP, publishToCentral } from "stremio-addon-sdk";
-import addonInterface from "./addon";
-serveHTTP(addonInterface, { port: parseInt(process.env.PORT || '56245') });
+const manifest: AddonManifest = {
+    id: 'vixsrc.addon',
+    version: '1.0.0',
+    name: 'VixSRC',
+    description: 'Streaming addon powered by VixSRC.to',
+    resources: ['stream'],
+    types: ['movie', 'series'],
+    idPrefixes: ['tt'],
+    catalogs: []
+};
 
-// when you've deployed your addon, un-comment this line
-// publishToCentral("https://my-addon.awesome/manifest.json")
-// for more information on deploying, see: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/deploying/README.md
+const builder = new addonBuilder(manifest);
+
+builder.defineStreamHandler(async (args) => {
+    const { type, id, extra } = args;
+    
+    try {
+        const streams = await extractStream(type, id, extra);
+        return { streams };
+    } catch (error) {
+        console.error('Stream extraction error:', error);
+        return { streams: [] };
+    }
+});
+
+const PORT = process.env.PORT || 56245;
+serveHTTP(builder.getInterface(), { port: PORT });
+console.log(`VixSRC addon running on port ${PORT}`);
