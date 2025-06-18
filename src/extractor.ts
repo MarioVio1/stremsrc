@@ -7,7 +7,7 @@ import { ContentType } from "stremio-addon-sdk";
 import * as cheerio from "cheerio";
 
 let BASEDOM = "https://cloudnestra.com";
-const SOURCE_URL = "https://vidsrc.xyz/embed";
+const SOURCE_URL = "https://vixsrc.to";
 
 interface Servers {
   name: string | null;
